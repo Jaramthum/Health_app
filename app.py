@@ -27,10 +27,11 @@ def save_csv(df: pd.DataFrame, path: Path):
     df.to_csv(path, index=False)
 
 def ensure_date_col(df: pd.DataFrame, col: str = "date"):
-    """Ensure a column is parsed as datetime."""
+    """Ensure a column is parsed as date (no time component) safely."""
     if df.empty:
         return df
-    df[col] = pd.to_datetime(df[col])
+    df[col] = pd.to_datetime(df[col], errors='coerce', infer_datetime_format=True)
+    df[col] = df[col].dt.normalize()  # removes time portion
     return df
 
 # ----------------- LOAD DATA -----------------
@@ -134,7 +135,7 @@ elif page == "Workout History":
                 st.markdown(
                     f"**Start:** {start_weight:.1f} lbs → "
                     f"**Current:** {current_weight:.1f} lbs "
-                    f"(**Δ {change:+.1f} lbs, {pct_change:+.1f}%**)"
+                    f"(**Δ {change:+.1f} lbs, {pct_change:+.1f}%**) "
                 )
 
 # ----------------- PAGE: LOG NUTRITION -----------------
